@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require("body-parser");
-require('./config/db'); // Ensure your database connection is set here
+const db=require('./config/db'); // Ensure your database connection is set here
 const cookieParser = require("cookie-parser");
 const authRoutes = require('./routes/auth');
 const app = express();
@@ -18,7 +18,7 @@ const PORT = 8080;
 // CORS setup for your React frontend
 app.use(cors({
   origin: 'http://localhost:3000', // your React frontend URL
-  credentials: true,               // if using cookies or sessions
+  credentials: true,   
 }));
 
 // Middleware to check login status and pass to EJS
@@ -30,6 +30,15 @@ app.use((req, res, next) => {
 
 app.use('/auth', authRoutes);
 
+app.get('/doctors', (req, res) => {
+  const query = "SELECT username FROM users WHERE role = 'doctor'"; 
+  db.query(query, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {

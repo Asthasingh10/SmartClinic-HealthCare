@@ -13,7 +13,7 @@ const AppointmentForm = () => {
         // Fetch doctors' names from backend API
         const fetchDoctors = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/doctors');
+                const response = await fetch('http://127.0.0.1:8080/doctors');
                 const data = await response.json();
                 setDoctors(data); // Set the doctors in state
             } catch (error) {

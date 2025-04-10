@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../Styles/Signup.css"; 
+import "../Styles/Signup.css";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -12,14 +12,16 @@ const Signup = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrorMessage(""); // Clear errors on change
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
       const res = await fetch("http://localhost:8080/auth/signup", {
         method: "POST",
@@ -28,15 +30,22 @@ const Signup = () => {
         },
         body: JSON.stringify(formData),
       });
-
+  
+      const data = await res.json();
+  
       if (res.ok) {
+        if (data.token) {
+          localStorage.setItem("token", data.token); // Store token
+        }
+  
         console.log("Signup successful");
-        navigate("/"); // redirect to Home.js
+        navigate("/"); // redirect to home page
       } else {
-        console.error("Signup failed");
+        setErrorMessage(data.message || "Signup failed");
       }
     } catch (error) {
       console.error("Error:", error);
+      setErrorMessage("Something went wrong. Please try again.");
     }
   };
 
@@ -118,14 +127,19 @@ const Signup = () => {
             </select>
           </div>
 
+          {errorMessage && (
+            <p className="error-message" style={{ color: "red" }}>
+              {errorMessage}
+            </p>
+          )}
+
           <button type="submit" className="submit-btn">
             Sign Up
           </button>
         </form>
 
         <p className="login-link">
-          Already have an account?{" "}
-          <a href="/login">Login here</a>
+          Already have an account? <a href="/login">Login here</a>
         </p>
       </div>
     </div>

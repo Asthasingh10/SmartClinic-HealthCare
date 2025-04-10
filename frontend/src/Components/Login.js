@@ -16,23 +16,28 @@ const Login = () => {
     setErrorMessage(""); // clear error on input change
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const res = await fetch("http://localhost:8080/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // if using sessions
+        credentials: "include", // Include if using cookies
         body: JSON.stringify(formData),
       });
-
+  
       const data = await res.json();
-
+  
       if (res.ok) {
-        navigate("/"); // ✅ Redirect to Home if successful
+        // ✅ Store token in localStorage if received
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+  
+        navigate("/"); // Redirect on success
       } else {
         setErrorMessage(data.message || "Login failed");
       }

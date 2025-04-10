@@ -1,30 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBars,
-  faXmark,
-} from "@fortawesome/free-solid-svg-icons";
+import { faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
 import "../Styles/Navbar.css";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [nav, setNav] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication status
   const navigate = useNavigate();
+
+  // Check if user is authenticated
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token); // If token exists, set authentication to true
+  }, []);
 
   const openNav = () => {
     setNav(!nav);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // Remove token on logout
+    setIsAuthenticated(false); // Update state to reflect logout
+    navigate("/"); // Redirect to login page
+  };
+
   return (
     <div className="navbar-section">
       <h1 className="navbar-title">
-        <Link to="/">
+        <Link to="/" className="navbar-logo">
           Health <span className="navbar-sign">+</span>
         </Link>
       </h1>
 
-      {/* Desktop */}
+      {/* Desktop Navigation */}
       <ul className="navbar-items">
         <li>
           <Link to="/" className="navbar-links">
@@ -52,24 +61,38 @@ function Navbar() {
           </a>
         </li>
       </ul>
-      <div className="navbar-buttons">
-  <button
-    className="signup-btn"
-    type="button"
-    onClick={() => navigate("/signup")}
-  >
-    Signup
-  </button>
-  <button
-    className="signup-btn"
-    type="button"
-    onClick={() => navigate("/login")}
-  >
-    Login
-  </button>
-</div>
 
-      {/* Mobile */}
+      {/* Conditionally render buttons based on authentication */}
+      <div className="navbar-buttons">
+        {isAuthenticated ? (
+          <button
+            className="logout-btn"
+            type="button"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        ) : (
+          <>
+            <button
+              className="signup-btn"
+              type="button"
+              onClick={() => navigate("/signup")}
+            >
+              Signup
+            </button>
+            <button
+              className="signup-btn"
+              type="button"
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Mobile Navigation */}
       <div className={`mobile-navbar ${nav ? "open-nav" : ""}`}>
         <div onClick={openNav} className="mobile-navbar-close">
           <FontAwesomeIcon icon={faXmark} className="hamb-icon" />
@@ -109,7 +132,7 @@ function Navbar() {
         </ul>
       </div>
 
-      {/* Hamburger Icon */}
+      {/* Hamburger Icon for Mobile */}
       <div className="mobile-nav">
         <FontAwesomeIcon
           icon={faBars}

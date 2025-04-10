@@ -15,7 +15,7 @@ const signup = (req, res) => {
   }
 
   const { username, email, phone, password, role } = req.body;
-  
+
   // Check if the email is already registered
   db.query(
     `SELECT * FROM users WHERE LOWER(email) = LOWER(?)`,
@@ -39,12 +39,34 @@ const signup = (req, res) => {
         db.query(
           `INSERT INTO users (username, email, phone, password, role) VALUES (?, ?, ?, ?, ?)`,
           [username, email, phone, hash, role],
-          (err) => {
+          (err, result) => {
             if (err) {
               return res.status(500).send({ msg: "Error inserting user." });
             }
 
-            return res.status(201).send({ msg: "User registered successfully." });
+            const newUser = {
+              id: result.insertId,
+              username,
+              email,
+              phone,
+              role,
+            };
+
+            // Create JWT token
+            const token = jwt.sign(
+              { id: newUser.id, email: newUser.email, role: newUser.role },
+              JWT_SECRET,
+              {
+                expiresIn: "1h", // expires in 1 hour
+              }
+            );
+
+            // Send back token and user data
+            return res.status(201).json({
+              msg: "User registered successfully.",
+              token,
+              user: newUser,  // Include user data in response
+            });
           }
         );
       });
@@ -52,7 +74,6 @@ const signup = (req, res) => {
   );
 };
 
-// LOGIN FUNCTION
 // LOGIN FUNCTION
 const login = (req, res) => {
   const errors = validationResult(req);

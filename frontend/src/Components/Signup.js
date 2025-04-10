@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../Styles/Signup.css";
+import "../Styles/Signup.css"; 
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -17,11 +17,12 @@ const Signup = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrorMessage(""); // Clear errors on change
+    setErrorMessage("");
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       const res = await fetch("http://localhost:8080/auth/signup", {
         method: "POST",
@@ -30,16 +31,24 @@ const Signup = () => {
         },
         body: JSON.stringify(formData),
       });
-  
+
       const data = await res.json();
-  
+
       if (res.ok) {
+        // Store token if available
         if (data.token) {
-          localStorage.setItem("token", data.token); // Store token
+          localStorage.setItem("token", data.token);
         }
-  
+
+        // Optionally store user data as well
+        if (data.user) {
+          localStorage.setItem("user", JSON.stringify(data.user)); // Store user data in localStorage
+        }
+
         console.log("Signup successful");
-        navigate("/"); // redirect to home page
+
+        // Redirect to home page (or wherever you want after signup)
+        navigate("/"); 
       } else {
         setErrorMessage(data.message || "Signup failed");
       }

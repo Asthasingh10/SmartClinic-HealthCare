@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../Styles/Login.css"; // Your custom CSS file
+import "../Styles/Login.css"; 
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -13,31 +13,27 @@ const Login = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setErrorMessage(""); // clear error on input change
+    setErrorMessage(""); 
   };
 
 const handleSubmit = async (e) => {
     e.preventDefault();
-  
     try {
       const res = await fetch("http://localhost:8080/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Include if using cookies
+        credentials: "include",
         body: JSON.stringify(formData),
       });
-  
       const data = await res.json();
-  
       if (res.ok) {
-        // ✅ Store token in localStorage if received
         if (data.token) {
           localStorage.setItem("token", data.token);
         }
   
-        navigate("/"); // Redirect on success
+        navigate("/"); 
       } else {
         setErrorMessage(data.message || "Login failed");
       }

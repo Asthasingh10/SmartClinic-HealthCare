@@ -6,6 +6,7 @@ const db=require('./config/db'); // Ensure your database connection is set here
 const cookieParser = require("cookie-parser");
 const authRoutes = require('./routes/auth');
 const app = express();
+const {authenticateDoctor}=require("./controllers/userControllers")
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -39,6 +40,7 @@ app.get('/doctors', (req, res) => {
     res.json(results);
   });
 });
+
 //book an appointment
 app.post('/booking', (req, res) => {
   const { patientName, patientEmail, doctor, appointmentDate, appointmentTime } = req.body;
@@ -60,6 +62,8 @@ app.post('/booking', (req, res) => {
       res.status(201).json({ message: 'Appointment booked successfully', appointmentId: result.insertId });
   });
 });
+
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

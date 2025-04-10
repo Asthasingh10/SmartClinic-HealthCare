@@ -82,7 +82,7 @@ const login = (req, res) => {
   }
 
   const { email, password } = req.body;
-  
+
   // Find the user by email
   db.query(`SELECT * FROM users WHERE email = ?`, [email], async (err, result) => {
     if (err) {
@@ -98,10 +98,19 @@ const login = (req, res) => {
       return res.status(401).send({ msg: "Invalid password." });
     }
 
-    // Create JWT token
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, {
-      expiresIn: "1h", // expires in 1 hour
-    });
+    // Create JWT token with username included in the payload
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        username: user.username, // Ensure username is included
+      },
+      JWT_SECRET,
+      {
+        expiresIn: "1h", // expires in 1 hour
+      }
+    );
 
     // Return the token and user info
     return res.status(200).json({
@@ -117,6 +126,8 @@ const login = (req, res) => {
   });
 };
 
+
+
 // LOGOUT FUNCTION
 const logout = (req, res) => {
   // Clear the token cookie
@@ -125,5 +136,7 @@ const logout = (req, res) => {
   // Optionally, you can send a response message.
   res.status(200).send({ msg: "Logged out successfully." });
 };
+
+
 
 module.exports = { signup, login, logout };

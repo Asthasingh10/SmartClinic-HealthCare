@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import '../Styles/Appointment.css';
 
 const AppointmentForm = () => {
@@ -8,33 +9,61 @@ const AppointmentForm = () => {
     const [appointmentDate, setAppointmentDate] = useState('');
     const [appointmentTime, setAppointmentTime] = useState('');
     const [doctors, setDoctors] = useState([]); // To store doctors list
+    const navigate = useNavigate(); // Hook to navigate between pages
 
     useEffect(() => {
-        // Fetch doctors' names from backend API
-        const fetchDoctors = async () => {
-            try {
-                const response = await fetch('http://127.0.0.1:8080/doctors');
-                const data = await response.json();
-                setDoctors(data); // Set the doctors in state
-            } catch (error) {
-                console.error('Error fetching doctors:', error);
-            }
-        };
-        
-        fetchDoctors(); // Call the function when component is mounted
-    }, []);
+        // Check if user is authenticated
+        const token = localStorage.getItem('token');
+        if (!token) {
+            // If user is not authenticated, redirect to login page
+            alert("You need to log in to book an appointment");
+            navigate('/login');
+        } else {
+            // If user is authenticated, fetch doctors list
+            const fetchDoctors = async () => {
+                try {
+                    const response = await fetch('http://127.0.0.1:8080/doctors');
+                    const data = await response.json();
+                    setDoctors(data); // Set the doctors in state
+                } catch (error) {
+                    console.error('Error fetching doctors:', error);
+                }
+            };
+            fetchDoctors(); // Fetch the doctors if user is logged in
+        }
+    }, [navigate]); // Depend on navigate to re-run if it's changed
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (patientName && patientEmail && doctor && appointmentDate && appointmentTime) {
-            alert('Your appointment has been booked successfully!');
-            console.log({
+            // Submit appointment to backend
+            const appointmentData = {
                 patientName,
                 patientEmail,
                 doctor,
                 appointmentDate,
-                appointmentTime
-            });
+                appointmentTime,
+            };
+            fetch('http://127.0.0.1:8080/booking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(appointmentData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Appointment booked successfully') {
+                        alert('Your appointment has been booked successfully!');
+                        navigate('/'); // Redirect to home page after success
+                    } else {
+                        alert('There was an issue booking the appointment. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error booking appointment:', error);
+                    alert('An error occurred while booking the appointment.');
+                });
         } else {
             alert('Please fill in all fields before submitting.');
         }

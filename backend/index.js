@@ -39,6 +39,27 @@ app.get('/doctors', (req, res) => {
     res.json(results);
   });
 });
+//book an appointment
+app.post('/booking', (req, res) => {
+  const { patientName, patientEmail, doctor, appointmentDate, appointmentTime } = req.body;
+
+  if (!patientName || !patientEmail || !doctor || !appointmentDate || !appointmentTime) {
+      return res.status(400).json({ error: 'All fields are required.' });
+  }
+
+  const query = `
+      INSERT INTO appointments (patient_name, patient_email, doctor, appointment_date, appointment_time)
+      VALUES (?, ?, ?, ?, ?)`;
+
+  db.query(query, [patientName, patientEmail, doctor, appointmentDate, appointmentTime], (err, result) => {
+      if (err) {
+          console.error('Error saving appointment:', err);
+          return res.status(500).json({ error: 'Failed to book appointment' });
+      }
+
+      res.status(201).json({ message: 'Appointment booked successfully', appointmentId: result.insertId });
+  });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {

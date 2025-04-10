@@ -19,6 +19,10 @@ function Navbar() {
     setNav(!nav);
   };
 
+  const handleBookAppointment = () => {
+    navigate("/bookappointmentform"); // Navigate to the book appointment form page
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token"); // Remove token on logout
     setIsAuthenticated(false); // Update state to reflect logout
@@ -65,13 +69,23 @@ function Navbar() {
       {/* Conditionally render buttons based on authentication */}
       <div className="navbar-buttons">
         {isAuthenticated ? (
-          <button
-            className="logout-btn"
-            type="button"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
+          <>
+            <button
+              className="book-appointment-btn"
+              type="button"
+              onClick={handleBookAppointment}
+            >
+              Book Appointment
+            </button>
+
+            <button
+              className="logout-btn"
+              type="button"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </>
         ) : (
           <>
             <button

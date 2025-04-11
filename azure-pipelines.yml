@@ -1,10 +1,25 @@
 trigger:
   branches:
     include:
-      - main   # or 'master' if that's your main branch
+      - main   # or 'master' if that's your default branch
 
 variables:
-  - group: smart-clinic-health-care  # name of your Azure DevOps variable group
+  azureWebAppPublishProfile: >
+    <?xml version="1.0" encoding="utf-8"?>
+    <publishData>
+      <publishProfile profileName="smartclinic - Web Deploy" 
+                      publishMethod="MSDeploy"
+                      publishUrl="smartclinic-bqhhejhud9a0ahba.scm.canadacentral-01.azurewebsites.net:443" 
+                      msdeploySite="smartclinic"
+                      userName="$smartclinic" 
+                      userPWD="Xcp5cAYRgdCAKspp1jAdWexSzkLjjdNHgtHt9Rt3sBeAMLBvbZ2gRDWff1MT"
+                      destinationAppUrl="http://smartclinic-bqhhejhud9a0ahba.canadacentral-01.azurewebsites.net"
+                      SQLServerDBConnectionString=""
+                      mySQLDBConnectionString=""
+                      hostingProviderForumLink=""
+                      controlPanelLink="https://portal.azure.com"
+                      webSystem="WebSites" />
+    </publishData>
 
 pool:
   vmImage: ubuntu-latest
@@ -17,14 +32,14 @@ steps:
 
   - script: |
       npm install
-      npm run build   # only if you have a build step; otherwise remove this line
+      npm run build   # remove this line if you don't have a build step
     displayName: 'Install dependencies and build'
 
   - task: AzureWebApp@1
     inputs:
       appType: 'webApp'
-      azureSubscription: ''  # leave this blank because we are using publish profile
-      appName: 'smartclinichealthcare'  # your app name in Azure
+      azureSubscription: ''  # leave blank if using publish profile
+      appName: 'smartclinic-backend'
       package: '$(System.DefaultWorkingDirectory)'
       deploymentMethod: 'auto'
       enableCustomDeployment: true

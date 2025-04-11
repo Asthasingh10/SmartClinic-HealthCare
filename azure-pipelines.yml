@@ -1,21 +1,32 @@
-# Node.js
-# Build a general Node.js project with npm.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
 trigger:
-- main
+  branches:
+    include:
+      - main   # or 'master' if that's your main branch
+
+variables:
+  - group: smartclinic-backend-group  # name of your Azure DevOps variable group
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '20.x'
-  displayName: 'Install Node.js'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '18.x'
+    displayName: 'Use Node.js'
 
-- script: |
-    npm install
-    npm run build
-  displayName: 'npm install and build'
+  - script: |
+      npm install
+      npm run build   # only if you have a build step; otherwise remove this line
+    displayName: 'Install dependencies and build'
+
+  - task: AzureWebApp@1
+    inputs:
+      appType: 'webApp'
+      azureSubscription: ''  # leave this blank because we are using publish profile
+      appName: 'smartclinic-backend'  # your app name in Azure
+      package: '$(System.DefaultWorkingDirectory)'
+      deploymentMethod: 'auto'
+      enableCustomDeployment: true
+      usePublishProfile: true
+      publishProfile: '$(azureWebAppPublishProfile)'

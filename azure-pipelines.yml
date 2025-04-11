@@ -4,7 +4,7 @@ trigger:
       - main   # or 'master' if that's your main branch
 
 variables:
-  - group: smartclinic-backend-group  # name of your Azure DevOps variable group
+  - group: smart-clinic-health-care  # name of your Azure DevOps variable group
 
 pool:
   vmImage: ubuntu-latest
@@ -24,7 +24,7 @@ steps:
     inputs:
       appType: 'webApp'
       azureSubscription: ''  # leave this blank because we are using publish profile
-      appName: 'smartclinic-backend'  # your app name in Azure
+      appName: 'smartclinichealthcare'  # your app name in Azure
       package: '$(System.DefaultWorkingDirectory)'
       deploymentMethod: 'auto'
       enableCustomDeployment: true

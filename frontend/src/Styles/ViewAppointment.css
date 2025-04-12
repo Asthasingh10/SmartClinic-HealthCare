@@ -56,13 +56,13 @@
   }
   
   .appointments-table tr:hover {
-    background-color: #f2f2f2;
+    background-color: #618bb5;
   }
   
   .no-data {
     text-align: center;
     padding: 20px;
     font-style: italic;
-    color: #999;
+    
   }
   

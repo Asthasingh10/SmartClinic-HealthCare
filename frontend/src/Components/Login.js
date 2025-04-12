@@ -34,7 +34,7 @@ const handleSubmit = async (e) => {
         }
         
         if (data.user) {
-          localStorage.setItem("user", JSON.stringify(data.user));
+          localStorage.setItem( "user", JSON.stringify(data.user));
           localStorage.setItem("role", data.user.role); 
         }        
         navigate("/"); 

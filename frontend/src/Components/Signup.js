@@ -43,6 +43,7 @@ const Signup = () => {
         // Optionally store user data as well
         if (data.user) {
           localStorage.setItem("user", JSON.stringify(data.user)); // Store user data in localStorage
+          localStorage.setItem("role", data.user.role); 
         }
 
         console.log("Signup successful");

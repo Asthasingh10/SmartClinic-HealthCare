@@ -10,13 +10,14 @@ function Navbar() {
   const [userRole, setUserRole] = useState(""); // To store the role of the user
   const navigate = useNavigate();
 
-  // Check if user is authenticated and get the role
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role"); // Assuming role is stored in localStorage
-    setIsAuthenticated(!!token); // If token exists, set authentication to true
-    setUserRole(role); // Set the user role
+    const user = JSON.parse(localStorage.getItem("user"));
+  
+    setIsAuthenticated(!!token);
+    setUserRole(user?.role || "");
   }, []);
+  
 
   const openNav = () => {
     setNav(!nav);
@@ -71,32 +72,37 @@ function Navbar() {
           </a>
         </li>
       </ul>
-
-      {/* Conditionally render buttons based on authentication and role */}
       <div className="navbar-buttons">
         {isAuthenticated ? (
           <>
-            {/* Conditionally render Book Appointment button */}
-            {userRole !== "doctor" && (
-              <button
-                className="book-appointment-btn"
-                type="button"
-                onClick={handleBookAppointment}
-              >
-                Book Appointment
-              </button>
-            )}
-
+            {userRole === "patient" && (
+                <button
+                  className="book-appointment-btn"
+                  type="button"
+                  onClick={handleBookAppointment}
+                >
+                  Book Appointment
+                </button>
+              )}
+            {userRole === "doctor" && (
             <button
-              className="logout-btn"
+              className="book-appointment-btn"
               type="button"
-              onClick={handleLogout}
+              onClick={() => navigate("/viewappointments")}
             >
-              Logout
+              View Appointments
             </button>
-          </>
-        ) : (
-          <>
+          )}
+            <button
+                  className="logout-btn"
+                  type="button"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </>
+            )  : (
+              <>
             <button
               className="signup-btn"
               type="button"

@@ -1,6 +1,7 @@
 trigger:
   branches:
     include:
+<<<<<<< HEAD
       - main   # or 'master' if that's your default branch
 
 variables:
@@ -20,6 +21,12 @@ variables:
                       controlPanelLink="https://portal.azure.com"
                       webSystem="WebSites" />
     </publishData>
+=======
+      - main   # or 'master' if that's your main branch
+
+variables:
+  - group: smartclinic-backend-group  # name of your Azure DevOps variable group
+>>>>>>> d4a9da4 (azure-pipelines file added)
 
 pool:
   vmImage: ubuntu-latest
@@ -32,14 +39,23 @@ steps:
 
   - script: |
       npm install
+<<<<<<< HEAD
       npm run build   # remove this line if you don't have a build step
+=======
+      npm run build   # only if you have a build step; otherwise remove this line
+>>>>>>> d4a9da4 (azure-pipelines file added)
     displayName: 'Install dependencies and build'
 
   - task: AzureWebApp@1
     inputs:
       appType: 'webApp'
+<<<<<<< HEAD
       azureSubscription: ''  # leave blank if using publish profile
       appName: 'smartclinic-backend'
+=======
+      azureSubscription: ''  # leave this blank because we are using publish profile
+      appName: 'smartclinic-backend'  # your app name in Azure
+>>>>>>> d4a9da4 (azure-pipelines file added)
       package: '$(System.DefaultWorkingDirectory)'
       deploymentMethod: 'auto'
       enableCustomDeployment: true

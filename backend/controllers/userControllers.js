@@ -138,5 +138,23 @@ const logout = (req, res) => {
 };
 
 
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader) {
+    return res.status(403).json({ message: 'No token provided.' });
+  }
+  const token = authHeader.startsWith('Bearer ')
+    ? authHeader.split(' ')[1]
+    : authHeader;
 
-module.exports = { signup, login, logout };
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: 'Failed to authenticate token.' });
+    }
+    req.user = decoded;
+    next();
+  });
+};
+
+
+module.exports = { signup, login, logout,verifyToken };

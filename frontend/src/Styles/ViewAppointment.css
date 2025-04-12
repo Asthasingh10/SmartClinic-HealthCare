@@ -1,0 +1,68 @@
+/* ViewAppointments.css */
+
+.appointments-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .appointments-title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #1a73e8;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .filter-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .input-box {
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .appointments-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .appointments-table th,
+  .appointments-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .appointments-table thead {
+    background-color: #1a73e8;
+    color: #fff;
+  }
+  
+  .appointments-table tr:hover {
+    background-color: #f2f2f2;
+  }
+  
+  .no-data {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: #999;
+  }
+  

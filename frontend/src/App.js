@@ -5,6 +5,7 @@ import Home from "./Pages/Home";
 import Signup from './Components/Signup'
 import Login from "./Components/Login";
 import BookAppointmentForm from "./Components/BookAppointmentForm";
+import ViewAppointments from "./Components/ViewAppointment";
 
 function App() {
   const ProtectedRoute = ({ children }) => {
@@ -30,7 +31,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        
+          <Route path="/viewappointments" element={<ViewAppointments/>}/>
       </Routes>
     </Router>
   </div>

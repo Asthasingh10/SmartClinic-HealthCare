@@ -6,7 +6,7 @@ const db=require('./config/db'); // Ensure your database connection is set here
 const cookieParser = require("cookie-parser");
 const authRoutes = require('./routes/auth');
 const app = express();
-const {authenticateDoctor}=require("./controllers/userControllers")
+const {verifyToken}=require("./controllers/userControllers")
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -63,6 +63,18 @@ app.post('/booking', (req, res) => {
   });
 });
 
+app.get('/viewappointments',verifyToken, (req, res) => {
+  if (req.user.role !== 'doctor') {
+    return res.status(403).json({ message: 'You are not authorized to view appointments.' });
+  }
+  // Fetch appointments from the database
+  db.query('SELECT patient_name, doctor, appointment_date, appointment_time, patient_email FROM appointments', (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Error fetching appointments.' });
+    }
+    res.json(results);
+  });
+});
 
 
 // Error handling middleware

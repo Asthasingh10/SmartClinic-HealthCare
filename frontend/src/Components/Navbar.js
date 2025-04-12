@@ -7,12 +7,15 @@ import { Link, useNavigate } from "react-router-dom";
 function Navbar() {
   const [nav, setNav] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false); // Track authentication status
+  const [userRole, setUserRole] = useState(""); // To store the role of the user
   const navigate = useNavigate();
 
-  // Check if user is authenticated
+  // Check if user is authenticated and get the role
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role"); // Assuming role is stored in localStorage
     setIsAuthenticated(!!token); // If token exists, set authentication to true
+    setUserRole(role); // Set the user role
   }, []);
 
   const openNav = () => {
@@ -24,9 +27,12 @@ function Navbar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // Remove token on logout
-    setIsAuthenticated(false); // Update state to reflect logout
-    navigate("/"); // Redirect to login page
+    localStorage.removeItem("token");
+    localStorage.removeItem("role"); // Clear role from localStorage
+    localStorage.removeItem("user");
+    setIsAuthenticated(false);
+    setUserRole(""); // Clear user role
+    navigate("/");
   };
 
   return (
@@ -66,17 +72,20 @@ function Navbar() {
         </li>
       </ul>
 
-      {/* Conditionally render buttons based on authentication */}
+      {/* Conditionally render buttons based on authentication and role */}
       <div className="navbar-buttons">
         {isAuthenticated ? (
           <>
-            <button
-              className="book-appointment-btn"
-              type="button"
-              onClick={handleBookAppointment}
-            >
-              Book Appointment
-            </button>
+            {/* Conditionally render Book Appointment button */}
+            {userRole !== "doctor" && (
+              <button
+                className="book-appointment-btn"
+                type="button"
+                onClick={handleBookAppointment}
+              >
+                Book Appointment
+              </button>
+            )}
 
             <button
               className="logout-btn"

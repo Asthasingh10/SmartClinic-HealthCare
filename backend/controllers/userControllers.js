@@ -2,12 +2,13 @@ const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const db = require("../config/db");
 const jwt = require("jsonwebtoken");
-
 require("dotenv").config();
+
 const { JWT_SECRET } = process.env;
 
-// SIGNUP FUNCTION
-// SIGNUP FUNCTION
+// ==============================
+// SIGNUP CONTROLLER
+// ==============================
 const signup = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -16,65 +17,55 @@ const signup = (req, res) => {
 
   const { username, email, phone, password, role } = req.body;
 
-  // Check if the email is already registered
-  db.query(
-    `SELECT * FROM users WHERE LOWER(email) = LOWER(?)`,
-    [email],
-    (err, result) => {
-      if (err) {
-        return res.status(500).send({ msg: "Database error." });
-      }
+  db.query(`SELECT * FROM users WHERE LOWER(email) = LOWER(?)`, [email], (err, result) => {
+    if (err) return res.status(500).json({ msg: "Database error." });
 
-      if (result.length > 0) {
-        return res.status(409).send({ msg: "This email is already in use!" });
-      }
-
-      // Hash the password
-      bcrypt.hash(password, 10, (err, hash) => {
-        if (err) {
-          return res.status(500).send({ msg: "Error hashing password." });
-        }
-
-        // Insert the new user into the database
-        db.query(
-          `INSERT INTO users (username, email, phone, password, role) VALUES (?, ?, ?, ?, ?)`,
-          [username, email, phone, hash, role],
-          (err, result) => {
-            if (err) {
-              return res.status(500).send({ msg: "Error inserting user." });
-            }
-
-            const newUser = {
-              id: result.insertId,
-              username,
-              email,
-              phone,
-              role,
-            };
-
-            // Create JWT token
-            const token = jwt.sign(
-              { id: newUser.id, email: newUser.email, role: newUser.role },
-              JWT_SECRET,
-              {
-                expiresIn: "1h", // expires in 1 hour
-              }
-            );
-
-            // Send back token and user data
-            return res.status(201).json({
-              msg: "User registered successfully.",
-              token,
-              user: newUser,  // Include user data in response
-            });
-          }
-        );
-      });
+    if (result.length > 0) {
+      return res.status(409).json({ msg: "This email is already in use!" });
     }
-  );
+
+    bcrypt.hash(password, 10, (err, hash) => {
+      if (err) return res.status(500).json({ msg: "Error hashing password." });
+
+      db.query(
+        `INSERT INTO users (username, email, phone, password, role) VALUES (?, ?, ?, ?, ?)`,
+        [username, email, phone, hash, role],
+        (err, result) => {
+          if (err) return res.status(500).json({ msg: "Error inserting user." });
+
+          const newUser = {
+            id: result.insertId,
+            username,
+            email,
+            phone,
+            role,
+          };
+
+          const token = jwt.sign(
+            {
+              id: newUser.id,
+              email: newUser.email,
+              role: newUser.role,
+              username: newUser.username,
+            },
+            JWT_SECRET,
+            { expiresIn: "1h" }
+          );
+
+          return res.status(201).json({
+            msg: "User registered successfully.",
+            token,
+            user: newUser,
+          });
+        }
+      );
+    });
+  });
 };
 
-// LOGIN FUNCTION
+// ==============================
+// LOGIN CONTROLLER
+// ==============================
 const login = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -83,36 +74,30 @@ const login = (req, res) => {
 
   const { email, password } = req.body;
 
-  // Find the user by email
   db.query(`SELECT * FROM users WHERE email = ?`, [email], async (err, result) => {
-    if (err) {
-      return res.status(500).send({ msg: "Database error." });
-    }
+    if (err) return res.status(500).json({ msg: "Database error." });
+
     if (result.length === 0) {
-      return res.status(401).send({ msg: "Email not found." });
+      return res.status(401).json({ msg: "Invalid email or password." });
     }
 
     const user = result[0];
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).send({ msg: "Invalid password." });
+      return res.status(401).json({ msg: "Invalid email or password." });
     }
 
-    // Create JWT token with username included in the payload
     const token = jwt.sign(
       {
         id: user.id,
         email: user.email,
         role: user.role,
-        username: user.username, // Ensure username is included
+        username: user.username,
       },
       JWT_SECRET,
-      {
-        expiresIn: "1h", // expires in 1 hour
-      }
+      { expiresIn: "1h" }
     );
 
-    // Return the token and user info
     return res.status(200).json({
       msg: "Login successful",
       token,
@@ -126,35 +111,44 @@ const login = (req, res) => {
   });
 };
 
-
-
-// LOGOUT FUNCTION
+// ==============================
+// LOGOUT CONTROLLER
+// ==============================
 const logout = (req, res) => {
-  // Clear the token cookie
-  res.clearCookie("token", { httpOnly: true, secure: false, sameSite: "Lax" });
-
-  // Optionally, you can send a response message.
-  res.status(200).send({ msg: "Logged out successfully." });
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "Lax",
+  });
+  res.status(200).json({ msg: "Logged out successfully." });
 };
 
-
+// ==============================
+// VERIFY TOKEN MIDDLEWARE
+// ==============================
 const verifyToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
+  const authHeader = req.headers["authorization"];
+
   if (!authHeader) {
-    return res.status(403).json({ message: 'No token provided.' });
+    return res.status(403).json({ message: "No token provided." });
   }
-  const token = authHeader.startsWith('Bearer ')
-    ? authHeader.split(' ')[1]
+
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
     : authHeader;
 
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
-      return res.status(403).json({ message: 'Failed to authenticate token.' });
+      return res.status(403).json({ message: "Failed to authenticate token." });
     }
-    req.user = decoded;
+    req.user = decoded; // Attach user info to request
     next();
   });
 };
 
-
-module.exports = { signup, login, logout,verifyToken };
+module.exports = {
+  signup,
+  login,
+  logout,
+  verifyToken,
+};

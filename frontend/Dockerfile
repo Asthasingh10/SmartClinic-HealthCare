@@ -1,14 +1,13 @@
 # Frontend Dockerfile
-FROM node:18-alpine
+FROM node:18.17.1
 
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm install
-COPY . .
-RUN npm run build
 
-# Use Nginx to serve the static files
-FROM nginx:alpine
-COPY --from=0 /app/build /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+COPY . .
+
+EXPOSE 8080
+
+CMD ["npm", "start"]

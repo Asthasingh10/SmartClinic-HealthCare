@@ -8,13 +8,12 @@ const authRoutes = require('./routes/auth');
 const app = express();
 const {verifyToken}=require("./controllers/userControllers")
 
-app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 // CORS setup for your React frontend
 app.use(cors({
